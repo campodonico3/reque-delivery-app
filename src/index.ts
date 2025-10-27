@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 
 // Importar routes
 import authRoutes from './routes/auth.js';
+import restaurantCategoriesRoutes from './routes/restaurantCategories.js';
 
 const app:Express = express();
 const PORT = process.env.PORT || 3000;
@@ -40,6 +41,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/restaurant-categories', restaurantCategoriesRoutes);
 
 // Root endpoint
 app.get("/", (req: Request, res: Response) => {

@@ -52,7 +52,7 @@ export const restaurantCategoriesTable = pgTable('restaurant_categories', {
   description: text('description'),
   iconUrl: text('icon_url'),
   isActive: boolean('is_active').default(true).notNull(),
-  displayOrder: integer('display_orde').default(0),
+  displayOrder: integer('display_orde').default(0), // Cambiar a display_order
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
