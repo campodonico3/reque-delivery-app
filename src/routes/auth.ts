@@ -79,13 +79,22 @@ router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response) 
 
         console.log('🔑 Generando JWT token...');
 
+        // Verificar que existe JWT_SECRET
+        if (!process.env.JWT_SECRET) {
+            console.error('❌ JWT_SECRET no está configurado');
+            return res.status(500).json({
+                success: false,
+                message: 'Error de configuración del servidor'
+            });
+        }
+
         // Generar JWT token
         const token = jwt.sign(
             {
                 userId: foundUser.id,
                 email: foundUser.email,
             },
-            process.env.JWT_SECRET || 'your-secret-key',
+            process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
 
@@ -198,13 +207,22 @@ router.post('/register', async (req: Request<{}, {}, RegisterRequest>, res: Resp
 
         console.log('🔑 Generando token para nuevo usuario...');
 
+        // Verificar que existe JWT_SECRET
+        if (!process.env.JWT_SECRET) {
+            console.error('❌ JWT_SECRET no está configurado');
+            return res.status(500).json({
+                success: false,
+                message: 'Error de configuración del servidor'
+            });
+        }
+
         // Generar token
         const token = jwt.sign(
             {
                 userId: newUser.id,
                 email: newUser.email
             },
-            process.env.JWT_SECRET || 'your-secret-key',
+            process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
 
@@ -260,13 +278,26 @@ export const authenticateToken = (req: any, res: Response, next: any) => {
         });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err: any, user: any) => {
+    if (!process.env.JWT_SECRET) {
+        console.error('❌ JWT_SECRET no está configurado');
+        return res.status(500).json({
+            success: false,
+            message: 'Error de configuración del servidor'
+        });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err: any, user: any) => {
         if (err) {
             console.log('❌ authenticateToken: token inválido o expirado', err);
+            
+            // Mensaje más específico según el tipo de error
+            const message = err.name === 'TokenExpiredError' 
+                ? 'Token expirado' 
+                : 'Token inválido';
 
             return res.status(403).json({
                 success: false,
-                message: 'Token inválido'
+                message
             });
         }
         console.log('✅ authenticateToken: token válido. user:', user);
